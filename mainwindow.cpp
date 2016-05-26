@@ -62,8 +62,10 @@ void MainWindow::joinThread(QThread *thread)
 
 void MainWindow::showStdOut(QString msg)
 {
-	QString message = "[" + QTime::currentTime().toString("hh:mm:ss.zzz") + "]" + msg;
-	this->outputEdit->append(message);
+	QStringList msgList = msg.split("\n");
+	foreach(QStirng mmsg, msgList){
+		this->outputEdit->append("[" + QTime::currentTime().toString("hh:mm:ss.zzz") + "]" + mmsg);
+	}
 }
 
 void MainWindow::receiveQuestionList(qint64 tid)
@@ -187,6 +189,8 @@ void MainWindow::receiveJudge(qint64 tid, Judge judge)
 				this->showStdOut(tr("用户%1(%2)上传的代码编译有警告: %3").arg(tid).arg(judge.username).arg(compile.getStdErr()));
 			}
 		}
+
+		this->judgeMessage.insert(tid, compile.getStdErr());
 
 		QList<JudgeStream> judgeStreamList = this->db->getQuestionJudgeData(judge.questionId);
 		QList<JudgeStream> judgeStreamFilePathList;
@@ -337,10 +341,11 @@ void MainWindow::receiveRunCodeStatus(qint64 tidRunCode, RunCodeJudgeResult resu
 		qCritical() << "Danger! Default to match index 0.";
 		index = 0;
 	}
+	this->judgeIndex.take(tid);
 	//答案对比
 	Status res;
-	QString message;
-	showStdOut(tr("评测机%1正在为用户%2(%3)进行答案评析...").arg(tidRunCode).arg(tid).arg(result.name));
+	QString message = this->judgeMessage.take(tid);
+	showStdOut(tr("评测机%1正在为用户%2(%3)进行答案评析...").arg(tidRunCode).arg(tid).arg(j.username));
 	if(result.status == 0){
 		//如果运行成功
 		QFile fout(QString::number(tid).append(".") + QString::number(j.judgeId).append(".") + QString::number(index).append(".sout"));
@@ -352,7 +357,7 @@ void MainWindow::receiveRunCodeStatus(qint64 tidRunCode, RunCodeJudgeResult resu
 		res = (Status)result.status;
 	}
 	this->db->setQuestionPass(j.questionId, res == Accepted?true:false);
-	showStdOut(tr("评测机%1位用户%2(%3)评测的结果是: 题目%4, 结果%5").arg(tidRunCode).arg(tid).arg(result.name).arg(j.questionId).arg(this->db->getJudgeStatusString(res)));
+	showStdOut(tr("评测机%1为用户%2(%3)评测的结果是: 题目%4, 结果%5").arg(tidRunCode).arg(tid).arg(j.username).arg(j.questionId).arg(this->db->getJudgeStatusString(res)));
 
 	JudgeResult jResult;
 	jResult.judgeId = j.judgeId;
@@ -475,9 +480,12 @@ void MainWindow::startSystem()
 	if(cp.cCmd.isEmpty()){
 		qWarning() << "User never config the C compiler execute command.";
 		qWarning() << "Use \"-O2 -fno-diagnostics-color -fno-diagnostics-show-option -fno-diagnostics-show-caret -o {TARGET} -DONLINE_JUDGE -Wall -lm --static --std=c99 -fno-asm {SOURCE}\" instead.";
-		showStdOut(tr("配置文件警告: 未设置C语言编辑器执行命令参数."));
+		showStdOut(tr("配置文件警告: 未设置C语言编译器执行命令参数."));
 		showStdOut(tr("使用\"-O2 -fno-diagnostics-color -fno-diagnostics-show-option -fno-diagnostics-show-caret -o {TARGET} -DONLINE_JUDGE -Wall -lm --static --std=c99 -fno-asm {SOURCE}\"代替"));
 		cp.cCmd = QString("-O2 -fno-diagnostics-color -fno-diagnostics-show-option -fno-diagnostics-show-caret -o {TARGET} -DONLINE_JUDGE -Wall -lm --static --std=c99 -fno-asm {SOURCE}");
+	}else{
+		qInfo() << "User configed the C complier execute command:" << cp.cCmd;
+		showStdOut(tr("配置: 找到C语言编译器执行命令参数: %1").arg(cp.cCmd));
 	}
 
 	cp.cpp = config->getCompileCpp();
@@ -508,6 +516,9 @@ void MainWindow::startSystem()
 		showStdOut(tr("配置文件警告: 未设置C++语言编辑器执行命令参数."));
 		showStdOut(tr("使用\"-O2 -fno-diagnostics-color -fno-diagnostics-show-option -fno-diagnostics-show-caret -o {TARGET} -DONLINE_JUDGE -Wall -lm --static --std-c98 -fno-asm {SOURCE}\"代替"));
 		cp.cppCmd = QString("-O2 -fno-diagnostics-color -fno-diagnostics-show-option -fno-diagnostics-show-caret -o {TARGET} -DONLINE_JUDGE -Wall -lm --static --std-c98 -fno-asm {SOURCE}");
+	}else{
+		qInfo() << "User configed the C++ complier execute command:" << cp.cppCmd;
+		showStdOut(tr("配置: 找到C++语言编译器执行命令参数: %1").arg(cp.cppCmd));
 	}
 
 	cp.java = config->getCompileJava();
@@ -538,6 +549,9 @@ void MainWindow::startSystem()
 		showStdOut(tr("配置文件警告: 未设置C++语言编辑器执行命令参数."));
 		showStdOut(tr("使用\"{SOURCE}\"代替"));
 		cp.javaCmd = QString("{SOURCE}");
+	}else{
+		qInfo() << "User configed the Java complier execute command:" << cp.javaCmd;
+		showStdOut(tr("配置: 找到Java语言编译器执行命令参数: %1").arg(cp.javaCmd));
 	}
 
 	ud.useDocker = config->getGlobalUseDocker();

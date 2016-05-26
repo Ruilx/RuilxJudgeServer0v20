@@ -59,6 +59,7 @@ class MainWindow : public QMainWindow
 
 	QMap<qint64, Judge> judgeMap;
 	QMap<qint64, int> judgeIndex;
+	QMap<qint64, QString> judgeMessage;
 
 protected:
 	void timerEvent(QTimerEvent *);

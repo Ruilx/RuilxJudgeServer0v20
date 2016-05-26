@@ -187,7 +187,7 @@ User Database::getUserInformation(QString username)
 
 QList<JudgeStream> Database::getQuestionJudgeData(int questionId)
 {
-	QString sql = "SELECT `input`, `output` FROM `stream` WHERE `question_id` = '%1' AND `delete` = 0";
+	QString sql = "SELECT `input`, `output` FROM `stream` WHERE `question_id` = '%1' AND `deleted` = 0";
 	sql = sql.arg(questionId);
 	QSqlQuery q(sql);
 	if(!q.exec()){
