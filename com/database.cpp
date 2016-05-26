@@ -219,6 +219,7 @@ QString Database::getJudgeStatusString(Status status)
 	while(q.next()){
 		return q.value("name").toString();
 	}
+	return QString();
 }
 
 void Database::setJudgeResult(JudgeResult result, QString source)
@@ -226,14 +227,17 @@ void Database::setJudgeResult(JudgeResult result, QString source)
 	//QString iSource = source.replace("\"", "\\\"");
 	QString sql = "INSERT INTO `judge` (`question_id`, `user_id`, `status_id`, `language_id`, `source`, `time_used`, `memory_used`, `message`, `create_time`) "
 				  "VALUES ('%1', '%2', '%3', '%4', '%5', '%6', '%7', '%8', '%9')";
+	//QString messageEscape = QString(result.message.toUtf8().toPercentEncoding());
+	QString messageEscape = QString(result.message.toUtf8().toBase64());
+	QString sourceEscape = QString(source.toUtf8().toBase64());
 	sql = sql.arg(result.questionId)
 			.arg(getUserInformation(result.username).userId)
 			.arg(result.status)
 			.arg(result.language)
-			.arg(source)
+			.arg(sourceEscape)
 			.arg(result.timeUsed)
 			.arg(result.memoryUsed)
-			.arg(result.message)
+			.arg(messageEscape)
 			.arg(QDateTime::fromTime_t(result.judgeTime).toString(Qt::ISODate));
 	//emit this->stdOut(tr("准备执行的SQL: %1").arg(sql));
 	QSqlQuery q(sql);

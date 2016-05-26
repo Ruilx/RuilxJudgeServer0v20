@@ -167,6 +167,9 @@ RunCode::RunCode(RunCodeSettings rcs, QObject *parent) : QObject(parent)
 		arg << "-N" << QString::number(rcs.tid);
 		arg << "-t" << QString::number(rcs.timeLimit);
 		arg << "-m" << QString::number(rcs.memoryLimit);
+		if(this->rcs.outputLimit > 0){
+			arg << "-o" << QString::number(rcs.outputLimit);
+		}
 		if(!rcs.inputfile.isEmpty()){
 			arg << "-f" << rcs.inputfile;
 		}
@@ -227,6 +230,9 @@ void RunCode::startRunCode()
 		arg << "exec" << tidName << rcs.runCodeFilePath;
 		arg << "-r" << this->runFile << "-N" << tidName << "-n" << QString("%1:%2").arg(rcs.host).arg(rcs.port);
 		arg << "-t" << QString::number(rcs.timeLimit) << "-m" << QString::number(rcs.memoryLimit);
+		if(this->rcs.outputLimit > 0){
+			arg << "-o" << QString::number(rcs.outputLimit);
+		}
 		if(!this->inputFile.isEmpty()){
 			arg << "-f" << this->inputFile;
 		}
@@ -262,6 +268,9 @@ void RunCode::startRunCode()
 		QStringList arg;
 		arg << "-r" << /*this->runFile*/rcs.execfile << "-N" << tidName << "-n" << QString("%1:%2").arg(rcs.host).arg(rcs.port);
 		arg << "-t" << QString::number(rcs.timeLimit) << "-m" << QString::number(rcs.memoryLimit);
+		if(this->rcs.outputLimit > 0){
+			arg << "-o" << QString::number(rcs.outputLimit);
+		}
 		if(!rcs.inputfile.isEmpty()){
 			arg << "-f" << this->inputFile;
 		}

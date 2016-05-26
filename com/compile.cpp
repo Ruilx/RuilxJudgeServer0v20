@@ -187,6 +187,8 @@ void Compile::startCompile()
 				//pattern:
 				// hello.c : 18 : 6 : warning : return type of 'main' is not 'int'
 				// FILENAME LINE COL  LEVEL     MESSAGE
+				// E : /MyQt/RuilxJudgeServer0v20/temp/374669656.1000.c : 2 : 2 : warning: implicit declaration of function 'puts'
+				// FILENAME                                             LINE COL  LEVEL    MESSAGE
 				if(pList.at(0).startsWith(' ')){
 					continue;
 				}

@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
 	this->resize(800, 600);
 	this->outputEdit = new QTextEdit(this);
 	this->outputEdit->setReadOnly(true);
+	this->outputEdit->setWordWrapMode(QTextOption::NoWrap);
 //	this->duringTimer = new QElapsedTimer;
 
 //	QGridLayout *lay = new QGridLayout;
@@ -242,6 +243,7 @@ void MainWindow::receiveJudge(qint64 tid, Judge judge)
 			settings.tid = tid;
 			settings.timeLimit = ques.timeLimit;
 			settings.useDocker = ud.useDocker == 1?true:false;
+			settings.outputLimit = judgeStreamList.at(/*i*/0).output.length() * ProgramOutputLimitTimes;
 
 			QThread *runCodeThread = new QThread(this);
 			RunCode *run = new RunCode(settings);

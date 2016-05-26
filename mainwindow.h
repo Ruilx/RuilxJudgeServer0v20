@@ -14,6 +14,8 @@
 #include "com/runcode.h"
 #include "com/assessment.h"
 
+#define ProgramOutputLimitTimes 3
+
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT

@@ -121,6 +121,7 @@ typedef struct{
 	int port;
 	int timeLimit;
 	int memoryLimit;
+	int outputLimit;
 	QString runCodeFilePath;
 	QString dockerPath;
 	QString image;
