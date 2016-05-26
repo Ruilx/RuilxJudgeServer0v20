@@ -63,7 +63,7 @@ void MainWindow::joinThread(QThread *thread)
 void MainWindow::showStdOut(QString msg)
 {
 	QStringList msgList = msg.split("\n");
-	foreach(QStirng mmsg, msgList){
+	foreach(QString mmsg, msgList){
 		this->outputEdit->append("[" + QTime::currentTime().toString("hh:mm:ss.zzz") + "]" + mmsg);
 	}
 }
