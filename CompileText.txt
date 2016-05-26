@@ -1,0 +1,23 @@
+hello.c:18:6: warning: return type of 'main' is not 'int'
+hello.c: In function 'main':
+hello.c:19:2: warning: implicit declaration of function 'puts'
+hello.c:20:2: error: expected ';' before 'return'
+
+hello.java:5: ´íÎó: ÐèÒª';'
+		System.out.println("Hello, world!")
+		                                   ^
+1 ¸ö´íÎó
+
+Main.java:5: error: ';' expected
+		System.out.println("Hello, world!")
+		                                   ^
+Main.java:6: error: unclosed character literal
+		System.out.println('hello');
+		                   ^
+Main.java:6: error: ';' expected
+		System.out.println('hello');
+		                     ^
+Main.java:6: error: unclosed character literal
+		System.out.println('hello');
+		                         ^
+4 errors
