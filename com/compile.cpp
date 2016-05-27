@@ -177,18 +177,28 @@ void Compile::startCompile()
 	this->compiler->setReadChannel(QProcess::StandardError);
 	QByteArray rawErr = this->compiler->readAllStandardError();
 	if(!rawErr.isEmpty()){
+		rawErr.replace(QByteArray("\r"), QByteArray());
 		QList<QByteArray> rawErrList = rawErr.split('\n');
 		foreach (auto p, rawErrList) {
 			if(p.isEmpty()){
 				continue;
 			}
 			QList<QByteArray> pList = p.split(':');
+#if defined(Q_OS_WIN) || defined(Q_OS_WIN32)
+			if(pList.length() >= 6){
+#else
 			if(pList.length() >= 5){
+#endif
 				//pattern:
 				// hello.c : 18 : 6 : warning : return type of 'main' is not 'int'
 				// FILENAME LINE COL  LEVEL     MESSAGE
+#if defined(Q_OS_WIN) || defined(Q_OS_WIN32)
 				// E : /MyQt/RuilxJudgeServer0v20/temp/374669656.1000.c : 2 : 2 : warning: implicit declaration of function 'puts'
 				// FILENAME                                             LINE COL  LEVEL    MESSAGE
+				if(pList.at(0).length() == 1 && !pList.at(0).startsWith('/') && !pList.at(0).startsWith('.')){
+					pList.takeFirst();
+				}
+#endif
 				if(pList.at(0).startsWith(' ')){
 					continue;
 				}
@@ -207,10 +217,19 @@ void Compile::startCompile()
 				}
 				QString msg = QString("%1: %2: %3: %4\n").arg(level).arg(line).arg(col).arg(message);
 				this->stdErr.append(msg);
+#if defined(Q_OS_WIN) || defined(Q_OS_WIN32)
+			}else if(pList.length() >= 5){
+#else
 			}else if(pList.length() >= 4){
+#endif
 				//pattern:
 				//Main.java : 5 : error: ';' expected
 				//FILENAME   LINE LEVEL  MESSAGE
+#if defined(Q_OS_WIN) || defined(Q_OS_WIN32)
+				if(pList.at(0).length() == 1 && !pList.at(0).startsWith('/') && !pList.at(0).startsWith('.')){
+					pList.takeFirst();
+				}
+#endif
 				if(pList.at(0).startsWith(' ')){
 					continue;
 				}
@@ -228,10 +247,19 @@ void Compile::startCompile()
 				}
 				QString msg = QString("%1: %2: %3\n").arg(level).arg(line).arg(message);
 				this->stdErr.append(msg);
+#if defined(Q_OS_WIN) || defined(Q_OS_WIN32)
+			}else if(pList.length() >= 4){
+#else
 			}else if(pList.length() >= 3){
+#endif
 				//pattern:
 				//hello.c : In function 'main':
 				//FILENAME  MESSAGE            EMPTY
+#if defined(Q_OS_WIN) || defined(Q_OS_WIN32)
+				if(pList.at(0).length() == 1 && !pList.at(0).startsWith('/') && !pList.at(0).startsWith('.')){
+					pList.takeFirst();
+				}
+#endif
 				if(pList.at(0).startsWith(' ')){
 					continue;
 				}

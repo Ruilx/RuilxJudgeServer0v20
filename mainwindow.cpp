@@ -157,9 +157,11 @@ void MainWindow::receiveJudge(qint64 tid, Judge judge)
 			case Cpp:
 				compile.setCompilePath(cp.cpp);
 				compile.setCompileCmd(cp.cppCmd);
+				break;
 			case Java:
 				compile.setCompilePath(cp.java);
 				compile.setCompileCmd(cp.javaCmd);
+				break;
 			default:
 				throw CompilerNotSupport;
 		}
@@ -179,7 +181,7 @@ void MainWindow::receiveJudge(qint64 tid, Judge judge)
 			this->showStdOut(tr("用户%1(%2)的代码编译出错: %3").arg(tid).arg(judge.username).arg(compile.getStdErr()));
 			this->db->setJudgeResult(result, judge.programSource);
 			emit this->sendJudge(tid, result);
-			showStdOut(tr("评测机%1位用户%2(%3)评测的结果是: 题目%4, 结果%5").arg("未定义").arg(tid).arg(result.username).arg(result.questionId).arg(this->db->getJudgeStatusString(result.status)));
+			showStdOut(tr("评测机%1为用户%2(%3)评测的结果是: 题目%4, 结果%5").arg("未定义").arg(tid).arg(result.username).arg(result.questionId).arg(this->db->getJudgeStatusString(result.status)));
 			return;
 		}else{
 			//Compiled has warning or succeed.
@@ -565,6 +567,7 @@ void MainWindow::startSystem()
 		qInfo() << "Server judge without Docker. DANGER!";
 		showStdOut(tr("配置文件信息: 服务器开启为非安全模式, 将在本机直接运行评测, 危险的操作."));
 	}else if(ud.useDocker == 1){
+		ud.docker = this->config->getGlobalDocker();
 		qInfo() << "Server judge using Docker.";
 		showStdOut(tr("配置文件信息: 服务器开启使用Docker, 正在检测Docker配置."));
 		if(!QFile::exists(ud.docker)){
