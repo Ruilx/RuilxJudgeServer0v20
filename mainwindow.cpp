@@ -589,12 +589,12 @@ void MainWindow::startSystem()
 	qInfo() << "Attecting Docker daemon if is running.";
 	showStdOut(tr("判断Docker的运行状态..."));
 	ud.useDocker = config->getGlobalUseDocker();
-	if(ud.useDocker == -1){
+	if(ud.useDocker < 0){
 		qCritical() << "Undefined Docker status settings. Settings invaild.";
 		showStdOut(tr("配置文件错误: 未设置Docker的运行状态, 请正确配置config.ini设置."));
 		return;
 	}else if(ud.useDocker == 1){
-		ud.dockerSocketPath = config->getGlobalUseDocker();
+		ud.dockerSocketPath = config->getGlobalDockerSocketPath();
 		if(ud.dockerSocketPath.isEmpty()){
 			qCritical() << "Invaild Docker socket path.";
 			showStdOut(tr("配置文件错误: 未设置Docker Socket的位置, 请正确配置config.ini设置."));
